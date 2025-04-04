@@ -1,0 +1,92 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    padding-bottom: 50px;
+    overflow-y: scroll; 
+    background-color: #121212;
+    color: #fff;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  h1 {
+    color: #ff9800;
+  }
+  
+  form {
+    margin-bottom: 20px;
+  }
+  
+  input[type="text"],
+  input[type="date"] {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 5px;
+    border: 1px solid #fff;
+    background-color: #333;
+    color: #fff;
+  }
+  
+  button {
+    padding: 10px 20px;
+    background-color: #ff9800;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #ff5722;
+  }
+  
+  #results {
+    display: none;
+  }
+  
+  .table-container {
+    max-height: 400px; /* Limit table height */
+    margin-top: 20px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  table th, table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  table th {
+    background-color: #333;
+    color: #fff;
+  }
+  
+  table tbody tr:hover {
+    background-color: #444;
+  }
+  
+  .error {
+    color: red;
+    margin-top: 20px;
+  }
+  
+  footer {
+    margin-top: auto;
+    padding: 10px;
+    background-color: #333;
+    color: white;
+    text-align: center;
+  }

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Codeforces Stats Analyzer</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>📊 Codeforces Stats Analyzer</h1>
+
+    <form id="stats-form">
+      <input type="text" id="handle" placeholder="Enter Codeforces handle" required />
+      <label for="start-date">From:</label>
+      <input type="date" id="start-date" required />
+      <label for="end-date">To:</label>
+      <input type="date" id="end-date" required />
+      <button type="submit">Analyze</button>
+    </form>
+
+    <div id="results" class="hidden">
+      <h2>Results for <span id="user-handle"></span></h2>
+      <p>📦 Problems Solved: <strong id="solved-count">0</strong></p>
+      <p>🏆 Total Score: <strong id="total-score">0</strong></p>
+
+      <div id="problem-details-container">
+        <h3>Problems Solved</h3>
+        <div class="table-container">
+          <table id="problems-table">
+            <thead>
+              <tr>
+                <th>Problem</th>
+                <th>Rating</th>
+                <th>Solve Time</th>
+              </tr>
+            </thead>
+            <tbody id="problems-tbody">
+              <!-- Dynamic problem rows will be inserted here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="error" class="error hidden"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
