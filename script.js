@@ -1,98 +1,197 @@
+/*
+storedParticipant = {
+    name: Nahif,
+    ID: 23103243,
+    Category: Senior,
+    handle: Nahif_Reza_99
+}
+*/
+
+let startDateUnix = null;
+let endDateUnix = null;
+let seniorCategoryData = [];
+let femaleCategoryData = [];
+let juniorCategoryData = [];
+
+async function loadData() {
+    const response = await fetch('cp_data.json');
+    const data = await response.json();
+        
+    seniorCategoryData = data.seniorCategoryData;
+    juniorCategoryData = data.juniorCategoryData;
+    femaleCategoryData = data.femaleCategoryData;
+
+    console.log("HI");
+}
+
 function setDefaultDates() {
     const today = new Date();
     const endDate = today.toISOString().split('T')[0];
     const startDate = new Date(today);
-    startDate.setMonth(today.getMonth() - 6);
+    endDateUnix = Math.floor(today.getTime() / 1000); // Convert endDate to UNIX
+
+    startDate.setMonth(today.getMonth() - 1);
     const startDateString = startDate.toISOString().split('T')[0]; 
-  
+    startDateUnix = Math.floor(startDate.getTime() / 1000);
+    
     document.getElementById('start-date').value = startDateString;
     document.getElementById('end-date').value = endDate;
 }
-window.onload = setDefaultDates;
+
+window.addEventListener('load', loadData);
+window.addEventListener('load', setDefaultDates);
 
 document.getElementById('stats-form').addEventListener('submit', function (e) {
     e.preventDefault(); 
+
+    document.getElementById('loading').classList.remove('hidden');
+    document.getElementById('loading').classList.add('show');
   
-    const handle = document.getElementById('handle').value;
     const startDate = document.getElementById('start-date').value;
     const endDate = document.getElementById('end-date').value;
 
-    fetchCodeforcesStats(handle, startDate, endDate)
+    fetchData()
       .then(data => displayResults(data))
       .catch(error => displayError(error));
 });
 
-async function fetchCodeforcesStats(handle, startDate, endDate) {
-    const apiUrl = `https://codeforces.com/api/user.status?handle=${handle}`;
-    
-    try {
-        const response = await fetch(apiUrl);
-        const data = await response.json();
+async function getDataFromCodeforces(handle) {
+    const api = `https://codeforces.com/api/user.status?handle=${handle}&from=1&count=200`;
+    const response = await fetch(api);
+    const data = await response.json();
 
-        if (data.status !== 'OK') {
-            throw new Error("Failed to fetch data from Codeforces API");
-        }
+    let solvedProblem = 0;
+    let totalScore = 0;
+    let solvedProblemList = [];
 
-        const submissions = data.result;
-
-        const startTimestamp = new Date(startDate).getTime() / 1000;
-        const endTimestamp = new Date(endDate).getTime() / 1000;
-
-        const solvedSet = new Set();
-        const solvedProblems = [];
-
-        submissions.forEach(sub => {
-            const isCorrect = sub.verdict === 'OK';
-            const creationTime = sub.creationTimeSeconds;
-
-            if (isCorrect && creationTime >= startTimestamp && creationTime <= endTimestamp) {
-                const problemId = `${sub.problem.contestId}-${sub.problem.index}`;
-                if (!solvedSet.has(problemId)) {
-                    solvedSet.add(problemId);
-
-                    solvedProblems.push({
-                        name: `${sub.problem.name}`,
-                        rating: sub.problem.rating || "N/A",
-                        solveTime: new Date(creationTime * 1000).toLocaleString()
-                    });
+    if(data.status === "OK") {
+        for(const problem of data.result) {
+            if(problem.creationTimeSeconds >= startDateUnix && problem.creationTimeSeconds <= endDateUnix) {
+                solvedProblemList.push(problem.problem.name);
+                solvedProblem += 1;
+                if(problem.problem.rating !== "N/A") {
+                    totalScore += (problem.problem.rating / 100);
                 }
-            }
-        });
-
+            }   
+        }
+    }
+    else if(data.comment ===`handle: User with handle ${handle} not found`) {
         return {
-            handle: handle,
-            solvedCount: solvedProblems.length,
-            totalScore: solvedProblems.reduce((acc, p) => acc + (p.rating !== "N/A" ? (p.rating / 100) : 0), 0),
-            problems: solvedProblems
-        };
+            totalSolved: ' ',
+            totalScore: ' ',
+            solvedProblemList: []
+        }
+    }
+    
+    return {
+        totalSolved: solvedProblem,
+        totalScore: totalScore,
+        solvedProblemList: solvedProblemList
+    };
+}
+async function categoryWiseResult(data) {
+    const fetchedData = []
+    for(const participant of data) {
+        const tempParticipant = await getDataFromCodeforces(participant.handle);
+        tempParticipant.name = participant.name;
+        tempParticipant.handle = participant.handle;
+        tempParticipant.ID = participant.ID;
+        fetchedData.push(tempParticipant);
+    }
+    return fetchedData;
+}
+async function fetchData() {
+    document.getElementById('loading').classList.remove('hidden');
+    document.getElementById('loading').classList.add('show');
 
-    } catch (error) {
-        throw new Error("Error fetching Codeforces stats: " + error.message);
+    let seniorResult = await categoryWiseResult(seniorCategoryData)
+    let juniorResult = await categoryWiseResult(juniorCategoryData)
+    let femaleResult = await categoryWiseResult(femaleCategoryData)
+
+
+    return {
+        seniorResult,
+        juniorResult,
+        femaleResult
     }
 }
+/*
+participant = {
+    name: Nahif Reza (string),
+    handle: Nahif_Reza_99 (string),
+    totalSolved: 10 (int),
+    totalScore: 10 (int),
+    solvedProblemList: [] (array)
+}
+*/
 
 function displayResults(data) {
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('loading').style.display = 'none';
+
     document.getElementById('results').classList.remove('hidden');
     document.getElementById('results').style.display = 'block';
 
-    document.getElementById('user-handle').textContent = data.handle;
-    document.getElementById('solved-count').textContent = data.solvedCount;
-    document.getElementById('total-score').textContent = data.totalScore;
+    data.seniorResult.sort((a, b) => b.totalScore - a.totalScore);
+    data.juniorResult.sort((a, b) => b.totalScore - a.totalScore);
+    data.femaleResult.sort((a, b) => b.totalScore - a.totalScore);
 
-    const tbody = document.getElementById('problems-tbody');
-    tbody.innerHTML = ''; 
+    const categoryMap = {
+        seniorResult: 'category-1-results',
+        juniorResult: 'category-2-results',
+        femaleResult: 'category-3-results'
+    };
 
-    data.problems.forEach(problem => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${problem.name}</td>
-            <td>${problem.rating}</td>
-            <td>${problem.solveTime}</td>
-        `;
-        tbody.appendChild(row);
-    });
+    for (const [categoryKey, elementId] of Object.entries(categoryMap)) {
+        const categoryData = data[categoryKey];
+        const tableBody = document.querySelector(`#${elementId} tbody`);
+        
+        tableBody.innerHTML = '';
 
+        if (categoryData.length === 0) {
+            const row = document.createElement('tr');
+            const cell = document.createElement('td');
+            cell.colSpan = 5;
+            cell.textContent = 'No participants in this category.';
+            row.appendChild(cell);
+            tableBody.appendChild(row);
+            continue;
+        }
+
+        for (const participant of categoryData) {
+            const row = document.createElement('tr');
+
+            const nameCell = document.createElement('td');
+            if(participant.totalScore !== ' ') {
+                nameCell.textContent = participant.name;
+            }
+            else {
+                nameCell.textContent = "User Not Found";
+            }
+
+            const idCell = document.createElement('td');
+            idCell.textContent = participant.ID || 'N/A'; 
+
+            const handleCell = document.createElement('td');
+            handleCell.textContent = participant.handle;
+
+            const solvedCell = document.createElement('td');
+            solvedCell.textContent = participant.totalSolved;
+
+            const scoreCell = document.createElement('td');
+            scoreCell.textContent = participant.totalScore;
+
+            row.appendChild(nameCell);
+            row.appendChild(idCell);
+            row.appendChild(handleCell);
+            row.appendChild(solvedCell);
+            row.appendChild(scoreCell);
+
+            tableBody.appendChild(row);
+        }
+    }
 }
+
 
 function displayError(error) {
     const errorElement = document.getElementById('error');
