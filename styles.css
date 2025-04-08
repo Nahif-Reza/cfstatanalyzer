@@ -83,10 +83,31 @@ body {
     margin-top: 20px;
   }
   
-  footer {
-    margin-top: auto;
-    padding: 10px;
-    background-color: #333;
-    color: white;
-    text-align: center;
+  .category-results {
+    margin-top: 30px;
+    border: 1px solid #444;
+    border-radius: 10px;
+    padding: 15px;
+    background-color: #1e1e1e;
   }
+
+.loading {
+  display: none; 
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 20px;
+  border-radius: 5px;
+  font-size: 18px;
+}
+
+.loading.hidden {
+  display: none;
+}
+
+.loading.show {
+  display: block;
+}

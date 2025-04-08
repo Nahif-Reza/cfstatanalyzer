@@ -1,0 +1,32 @@
+{
+    "seniorCategoryData": [
+      {
+        "name": "Nahif",
+        "ID": 23103243,
+        "Category": "Senior",
+        "handle": "Nahif_Reza_99"
+      },
+      {
+        "name": "Asha",
+        "ID": 12345678,
+        "Category": "Senior",
+        "handle": "Asha123"
+      }
+    ],
+    "juniorCategoryData": [
+      {
+        "name": "Arif",
+        "ID": 23456789,
+        "Category": "Junior",
+        "handle": "ArifJunior"
+      }
+    ],
+    "femaleCategoryData": [
+      {
+        "name": "Zara",
+        "ID": 87654321,
+        "Category": "Female",
+        "handle": "Zara_Female"
+      }
+    ]
+}  
